@@ -15,6 +15,7 @@ string get_cookie(const string resp);
 string get_alert(const string resp);
 string FileToStr(string filepath);
 string MapToString(map<string, string> data);
+string UrlEncode(string s);
 
 int main(int argc, char *argv[])
 {
@@ -79,7 +80,7 @@ int main(int argc, char *argv[])
         sockfd = http_create_socket(ip.c_str(), port);
         map<string, string> login_data;
         login_data["username"] = username;
-        login_data["password"] = password;
+        login_data["password"] = UrlEncode(password);
         login_data["input_ans"] = "42"; //Ð´ËÀ¾ÍÐÐ
         login_data["auth_answer"] = "42";
         login_data["login"] = "µÇÂ¼";

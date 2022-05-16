@@ -73,3 +73,26 @@ string MapToString(map<string, string> data)
     res.erase(res.end() - 1);
     return res;
 }
+string UrlEncode(string s)
+{
+    char need[6];
+    string temp;
+    string changelist = "+/%#&?= ";
+    string::iterator it;
+    for (size_t i = 0; i < s.length(); i++)
+    {
+        for (size_t j = 0; j < changelist.length(); j++)
+        {
+            if (s[i] == changelist[j])
+            {
+                sprintf(need, "%%%X", int(s[i]));
+                temp = need;
+                it = s.begin() + i;
+                s.erase(it);
+                s.insert(s.begin() + i, temp.begin(), temp.end());
+                i += temp.length() - 1;
+            }
+        }
+    }
+    return s;
+}
