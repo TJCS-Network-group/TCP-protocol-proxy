@@ -105,7 +105,10 @@ int main(int argc, char *argv[])
         if (login_alert.length() == 0)
             cout << "µÇÂ¼³É¹¦\n";
         else
+        {
             cout << login_alert << endl;
+            exit(EXIT_FAILURE);
+        }
 
         close(sockfd);
     }
