@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.service": "cmake",
+        "regex": "cpp"
+    }
+}

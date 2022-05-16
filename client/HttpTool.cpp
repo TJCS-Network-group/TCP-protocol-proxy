@@ -100,17 +100,18 @@ string UrlEncode(string s)
 bool search_to_submit(string s, string html)
 {
     bool found = false;
-    string pattern("<tr>.*?<input type=\"file\".*?></tr>"), subpattern("<td>.*?</td>");
+    string pattern("<tr>.*?<input type=\"file\".*?></tr>"), subpattern("<td>(.*?)</td>");
     regex r(pattern), sub(subpattern);
-    for (sregex_iterator it(html.begin(), html.end(), r), end_it; it != end_it && !found; ++it)
+    string temp;
+    for (sregex_iterator it(html.begin(), html.end(), r), end_it; it != end_it && (!found); ++it)
     {
         int num = 0;
-        for (sregex_iterator sub_it(it->str().begin(), it->str().end(), sub), e_it; sub_it != e_it; ++sub_it)
+        for (sregex_iterator sub_it(temp.begin(), temp.end(), sub), e_it; sub_it != e_it; ++sub_it)
         {
             num++;
             if (num == 2)
             {
-                if (sub_it->str().find(s))
+                if (sub_it->str(1) == s)
                 {
                     found = true;
                     break;
