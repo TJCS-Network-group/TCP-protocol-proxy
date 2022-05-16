@@ -121,3 +121,20 @@ bool search_to_submit(string s, string html)
     }
     return found;
 }
+void findLeft_to_jump(string html)
+{
+    string pattern("<left>(.*?)</left>"), subpattern("<a href=(.*?)>(.*?)</a>");
+    regex r(pattern), sub(subpattern);
+    smatch results;
+    string temp;
+    for (sregex_iterator it(html.begin(), html.end(), r), end_it; it != end_it; ++it)
+    {
+        temp = it->str(1);
+
+        for (sregex_iterator sub_it(temp.begin(), temp.end(), sub), e_it; sub_it != e_it; ++sub_it)
+        {
+
+            cout << sub_it->str(1) << endl;
+        }
+    }
+}
