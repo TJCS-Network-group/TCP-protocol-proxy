@@ -20,6 +20,7 @@
 #include<sys/types.h>
 #include<sys/stat.h>
 #include<sys/prctl.h>
+#include<time.h>
 
 #define MAX_CONNECT 1024
 #define BUF_SIZE 10240

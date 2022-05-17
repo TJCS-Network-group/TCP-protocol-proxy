@@ -203,7 +203,12 @@ int epoll_server(int listenfd)
         writable[connectfd] = false;
         ipAddr[newfd] = getIpAddr(newfd);
         waitForConnect.push_back(connectfd);
-        logfout << ipAddr[newfd] << " server accept success" << endl;
+        time_t tm;
+        time(&tm);
+        char tmp_time[64] = "";
+        strftime(tmp_time, sizeof(tmp_time), "%Y-%m-%d %H:%M:%S", localtime(&tm));
+
+        logfout << "[" << tmp_time << "] " << ipAddr[newfd] << " server accept success" << endl;
       }
       else if (event.events & EPOLLIN)
       {
@@ -242,16 +247,13 @@ int epoll_server(int listenfd)
         }
         writeCount = ret;
 
-        if (!isDeamon)
-        {
-          if (readCount != BUF_SIZE)
-          {
-            printf("from %s to %s\n%s\n", ipAddr[recvfd].c_str(), ipAddr[sendfd].c_str(), buf);
-          }
-        }
+        time_t tm;
+        time(&tm);
+        char tmp_time[64] = "";
+        strftime(tmp_time, sizeof(tmp_time), "%Y-%m-%d %H:%M:%S", localtime(&tm));
 
-        logfout << ipAddr[recvfd] << " receive " << readCount << " bytes" << endl;
-        logfout << ipAddr[sendfd] << " send " << writeCount << " bytes" << endl;
+        logfout << "[" << tmp_time << "] " << ipAddr[recvfd] << " receive " << readCount << " bytes" << endl;
+        logfout << "[" << tmp_time << "] " << ipAddr[sendfd] << " send " << writeCount << " bytes" << endl;
       }
       else if (event.events & EPOLLOUT)
       {
@@ -274,7 +276,12 @@ int epoll_server(int listenfd)
           }
           waitForConnect.erase(it);
           ipAddr[event.data.fd] = getIpAddr(event.data.fd);
-          logfout << ipAddr[event.data.fd] << " connect success" << endl;
+          time_t tm;
+          time(&tm);
+          char tmp_time[64] = "";
+          strftime(tmp_time, sizeof(tmp_time), "%Y-%m-%d %H:%M:%S", localtime(&tm));
+
+          logfout << "[" << tmp_time << "] " << ipAddr[event.data.fd] << " connect success" << endl;
         }
 
         if (!writable[event.data.fd])
@@ -289,14 +296,7 @@ int epoll_server(int listenfd)
 
 int errorExit(const char *str)
 {
-  if (isDeamon)
-  {
-    logfout << str << " error" << errno << ' ' << strerror(errno) << endl;
-  }
-  else
-  {
-    printf("&s error: %d %s\n", str, errno, strerror(errno));
-  }
+  printf("&s error: %d %s\n", str, errno, strerror(errno));
   exit(-1);
 }
 
