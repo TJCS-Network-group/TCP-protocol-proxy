@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.service": "cmake",
-        "regex": "cpp"
+        "regex": "cpp",
+        "utility": "cpp"
     }
 }

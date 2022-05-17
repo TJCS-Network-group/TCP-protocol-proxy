@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <regex>
+#include <vector>
 using namespace std;
 
 string get_cookie(const string resp)
@@ -97,44 +98,40 @@ string UrlEncode(string s)
     }
     return s;
 }
-bool search_to_submit(string s, string html)
+void search_to_submit(string url, string html, map<string, pair<string, string>> &dstfile_input_name)
 {
-    bool found = false;
-    string pattern("<tr>.*?<input type=\"file\".*?></tr>"), subpattern("<td>(.*?)</td>");
+    string pattern("<tr>.*?<input type=\"file\".*?name=\"(.*?)\".*?></tr>"), subpattern("<td>(.*?)</td>");
     regex r(pattern), sub(subpattern);
-    string temp;
-    for (sregex_iterator it(html.begin(), html.end(), r), end_it; it != end_it && (!found); ++it)
+    string temp, name, upfile;
+    for (sregex_iterator it(html.begin(), html.end(), r), end_it; it != end_it; ++it)
     {
         int num = 0;
+        temp = it->str();
+        upfile = it->str(1);
         for (sregex_iterator sub_it(temp.begin(), temp.end(), sub), e_it; sub_it != e_it; ++sub_it)
         {
             num++;
             if (num == 2)
             {
-                if (sub_it->str(1) == s)
-                {
-                    found = true;
-                    break;
-                }
+                name = sub_it->str();
+                dstfile_input_name[name] = make_pair(url, upfile);
             }
         }
     }
-    return found;
 }
-void findLeft_to_jump(string html)
+void findLeft_to_jump(string html, vector<string> &urls)
 {
     string pattern("<left>(.*?)</left>"), subpattern("<a href=(.*?)>(.*?)</a>");
     regex r(pattern), sub(subpattern);
     smatch results;
-    string temp;
+    string temp, url;
     for (sregex_iterator it(html.begin(), html.end(), r), end_it; it != end_it; ++it)
     {
         temp = it->str(1);
-
         for (sregex_iterator sub_it(temp.begin(), temp.end(), sub), e_it; sub_it != e_it; ++sub_it)
         {
-
-            cout << sub_it->str(1) << endl;
+            url = sub_it->str(1);
+            urls.push_back(url);
         }
     }
 }
