@@ -113,7 +113,7 @@ void search_to_submit(string url, string html, map<string, pair<string, string>>
             num++;
             if (num == 2)
             {
-                name = sub_it->str();
+                name = sub_it->str(1);
                 dstfile_input_name[name] = make_pair(url, upfile);
             }
         }
