@@ -125,6 +125,8 @@ void findLeft_to_jump(string html, vector<string> &urls)
     regex r(pattern), sub(subpattern);
     smatch results;
     string temp, url;
+    size_t pos;
+    string substr = "smain.php";
     for (sregex_iterator it(html.begin(), html.end(), r), end_it; it != end_it; ++it)
     {
         temp = it->str(1);
@@ -133,7 +135,14 @@ void findLeft_to_jump(string html, vector<string> &urls)
             if (sub_it->str(2) != string("ÍË³ö"))
             {
                 url = sub_it->str(1);
-                urls.push_back(url);
+
+                if ((pos = url.find(substr)) != string::npos)
+                {
+                    pos += substr.length();
+                    string res = url.substr(pos); //Î²²¿
+                    res.erase(res.end() - 1);
+                    urls.push_back(res);
+                }
             }
         }
     }

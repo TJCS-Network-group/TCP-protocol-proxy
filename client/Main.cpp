@@ -17,7 +17,7 @@ string get_alert(const string resp);
 string FileToStr(string filepath);
 string MapToString(map<string, string> data);
 string UrlEncode(string s);
-void search_to_submit(string html, map<string, pair<string, string>> &dstfile_input_name);
+void search_to_submit(string url, string html, map<string, pair<string, string>> &dstfile_input_name);
 void findLeft_to_jump(string html, vector<string> &urls);
 
 int main(int argc, char *argv[])
@@ -39,16 +39,6 @@ int main(int argc, char *argv[])
     string srcfile = myarg.srcfile;
     string dstfile = myarg.dstfile;
     string resource = "/";
-    vector<string> urls;
-    map<string, pair<string, string>> dstfile_input_name; // dstfile和网站上input表的name一一对应
-    /*
-    dstfile_input_name["test1.tar.bz2"] = "upfile1";
-    dstfile_input_name["test2.pdf"] = "upfile2";
-    dstfile_input_name["test3.pdf"] = "upfile3";
-    dstfile_input_name["test4.cpp"] = "upfile4";
-    dstfile_input_name["test5-rpm_service.tar.bz2"] = "upfile5";
-    dstfile_input_name["test6-socket-tcp-sync.pdf"] = "upfile6";
-    */
 
     const string CONNECTION_TYPE = "keep-alive";
     string con_header = "Connection: " + CONNECTION_TYPE;
@@ -112,23 +102,75 @@ int main(int argc, char *argv[])
 
         close(sockfd);
     }
+    {
+        sockfd = http_create_socket(ip.c_str(), port);
+        resource = "/lib/smain.php"; // refresh到这里
+        myhttp.clear();
+        myhttp.setMethod(resource, "GET");
+        myhttp.setHeader(host_header);
+        myhttp.setHeader(con_header);
+        myhttp.setHeader(cookie_header);
+        myhttp.setHeader(); //补一行
+
+        string buffer_get = myhttp.getMessage();
+        len = http_send_request(sockfd, buffer_get);
+        response = http_recv_request(sockfd);
+        string alert = get_alert(response);
+        if (alert.length() == 0)
+            cout << "获取主页信息成功\n";
+        else
+        {
+            cout << alert << endl;
+            exit(EXIT_FAILURE);
+        }
+        close(sockfd);
+    }
 
     //以下为访问所有不包括退出的侧边栏网页以寻找可提交的文件
+
+    //首先根据报文的refresh寻找到第一个跳转页
+    //然后通过get请求获取响应
+    //根据响应匹配所有除登出以外的侧边栏
+    //然后遍历这些不断寻求可提交的文件以及对应的url和upfile_name
+
+    vector<string> urls;
+    findLeft_to_jump(response, urls);                     //排除了登出url
+    map<string, pair<string, string>> dstfile_input_name; // dstfile和网站上input表的name一一对应
+    for (int i = 0; i < urls.size(); ++i)
     {
-        //首先根据报文的refresh寻找到第一个跳转页
-        //然后通过get请求获取响应
-        //根据响应匹配所有除登出以外的侧边栏
-        //然后遍历这些不断寻求可提交的文件以及对应的url和upfile_name
+        sockfd = http_create_socket(ip.c_str(), port);
+        resource = "/lib/smain.php" + urls[i];
+        cout << "正在访问网页资源：" << resource << endl;
+        myhttp.clear();
+        myhttp.setMethod(resource, "GET");
+        myhttp.setHeader(host_header);
+        myhttp.setHeader(con_header);
+        myhttp.setHeader(cookie_header);
+        myhttp.setHeader(); //补一行
+
+        string buffer_get = myhttp.getMessage();
+        len = http_send_request(sockfd, buffer_get);
+        response = http_recv_request(sockfd);
+        search_to_submit(urls[i], response, dstfile_input_name);
+        close(sockfd);
     }
+
+    map<string, pair<string, string>>::iterator iter;
+    cout << "访问所有侧边栏资源完成，找到已发布作业如下：" << endl;
+    for (iter = dstfile_input_name.begin(); iter != dstfile_input_name.end(); ++iter)
+    {
+        cout << iter->first << "\t\t\t" << iter->second.first << '\t' << iter->second.second << endl;
+    }
+
     if (dstfile_input_name.count(dstfile) == 0)
     {
         cerr << "dstfile name error!\n";
         exit(EXIT_FAILURE);
     }
+
     //以下为提交
     {
-        resource = "/lib/smain.php?action=第0章"; // utf8用："/lib/smain.php?action=%B5%DA0%D5%C2";
-        // resource = dstfile_input_name[dstfile].first;
+        resource = "/lib/smain.php" + dstfile_input_name[dstfile].first;
         sockfd = http_create_socket(ip.c_str(), port);
 
         string boundary = "77daaf90ce52cd73f471a7d37953cdff"; //随机生成即可
@@ -160,16 +202,7 @@ int main(int argc, char *argv[])
         string buffer_submit = myhttp.getMessage();
         len = http_send_request(sockfd, buffer_submit);
         response = http_recv_request(sockfd);
-        /*
-        fstream f("response.html", ios::out | ios::binary);
-        if (f.good())
-        {
-            f << response;
-        }
-        else
-        {
-            cout << "Can't open file!" << endl;
-        }*/
+
         cout << get_alert(response) << endl;
         close(sockfd);
     }
