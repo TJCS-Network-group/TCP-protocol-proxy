@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
     cout << "访问所有侧边栏资源完成，找到已发布作业如下：" << endl;
     for (iter = dstfile_input_name.begin(); iter != dstfile_input_name.end(); ++iter)
     {
-        cout << iter->first << "\t\t\t" << iter->second.first << '\t' << iter->second.second << endl;
+        cout << iter->first << "\t" << iter->second.second << endl;
     }
 
     if (dstfile_input_name.count(dstfile) == 0)

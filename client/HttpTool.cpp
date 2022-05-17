@@ -60,8 +60,8 @@ string FileToStr(string filepath)
     }
     else
     {
-        cout << "Can't open file!" << endl;
-        return "";
+        cout << "Can't open file!srcfile name error!" << endl;
+        exit(EXIT_FAILURE);
     }
 }
 string MapToString(map<string, string> data)
