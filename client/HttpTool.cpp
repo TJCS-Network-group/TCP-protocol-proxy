@@ -130,8 +130,11 @@ void findLeft_to_jump(string html, vector<string> &urls)
         temp = it->str(1);
         for (sregex_iterator sub_it(temp.begin(), temp.end(), sub), e_it; sub_it != e_it; ++sub_it)
         {
-            url = sub_it->str(1);
-            urls.push_back(url);
+            if (sub_it->str(2) != string("ÍË³ö"))
+            {
+                url = sub_it->str(1);
+                urls.push_back(url);
+            }
         }
     }
 }

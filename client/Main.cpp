@@ -118,7 +118,6 @@ int main(int argc, char *argv[])
         //首先根据报文的refresh寻找到第一个跳转页
         //然后通过get请求获取响应
         //根据响应匹配所有除登出以外的侧边栏
-        //如果当前页面存在的话直接搜索文件，否则获取响应后去搜索
         //然后遍历这些不断寻求可提交的文件以及对应的url和upfile_name
     }
     if (dstfile_input_name.count(dstfile) == 0)
