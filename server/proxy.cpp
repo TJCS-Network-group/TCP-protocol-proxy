@@ -31,13 +31,12 @@ int main(int argc, char **argv)
 {
   //获取参数
   getParam(argc, argv);
+  logfout.open(logname, ios::out | ios::app);
 
   if (isDeamon)
   {
     my_daemon(1, 1, 1);
   }
-
-  logfout.open(logname, ios::out | ios::app);
 
   //初始化listen fd
   SocketOption opt;
@@ -224,8 +223,12 @@ int epoll_server(int listenfd)
         ret = read(recvfd, buf, BUF_SIZE);
         if (ret <= 0)
         {
-          logfout << ipAddr[recvfd] << " lost connection" << endl;
-          logfout << ipAddr[sendfd] << " close connection" << endl;
+          time_t tm;
+          time(&tm);
+          char tmp_time[64] = "";
+          strftime(tmp_time, sizeof(tmp_time), "%Y-%m-%d %H:%M:%S", localtime(&tm));
+          logfout << "[" << tmp_time << "] " << ipAddr[recvfd] << " lost connection" << endl;
+          logfout << "[" << tmp_time << "] " << ipAddr[sendfd] << " close connection" << endl;
           writable.erase(recvfd);
           writable.erase(sendfd);
           proxyPair.erase(recvfd);
